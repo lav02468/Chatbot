@@ -2,16 +2,19 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Navbar() {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // TODO: Replace with actual auth state
+  const { user, logout } = useAuth();
 
-  const handleLogout = () => {
-    // TODO: Add logout logic
-    setIsLoggedIn(false);
-    router.push('/login');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/');
+    } catch (error) {
+      console.error('Failed to logout:', error);
+    }
   };
 
   return (
@@ -21,13 +24,16 @@ export default function Navbar() {
           AI Chatbot
         </Link>
         <div className="space-x-4">
-          {isLoggedIn ? (
-            <button
-              onClick={handleLogout}
-              className="bg-blue-500 px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-            >
-              Logout
-            </button>
+          {user ? (
+            <div className="flex items-center space-x-4">
+              <span>{user.email}</span>
+              <button
+                onClick={handleLogout}
+                className="bg-blue-500 px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Logout
+              </button>
+            </div>
           ) : (
             <>
               <Link
